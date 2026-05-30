@@ -2,19 +2,21 @@
   <img src="https://img.shields.io/badge/Python-3.10+-blue.svg" alt="Python">
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
   <img src="https://img.shields.io/badge/arXiv-CrossRef_Scopus_PubMed-orange.svg" alt="Sources">
+  <img src="https://img.shields.io/badge/LLM-Wiki-purple.svg" alt="LLM Wiki">
 </h1>
 
 <h1 align="center">Search Papers</h1>
 
 <p align="center">
   <b>AI-powered academic paper search assistant</b><br>
-  Cross-platform literature retrieval with DeepSeek AI analysis<br>
-  Includes an integrated <b>LLM Wiki</b> for long-term research knowledge management<br>
+  From paper search to linked research knowledge base<br>
+  Cross-platform literature retrieval, DeepSeek AI analysis, and an integrated <b>LLM Wiki</b><br>
   Supports <b>any university</b> — works worldwide
 </p>
 
 <p align="center">
   <a href="#-features">Features</a> •
+  <a href="#-at-a-glance">At a Glance</a> •
   <a href="#-quick-start">Quick Start</a> •
   <a href="#-usage">Usage</a> •
   <a href="#-llm-wiki-integration">LLM Wiki</a> •
@@ -30,6 +32,28 @@
 ## What is Search Papers?
 
 **Search Papers** is a terminal-based academic literature search tool that queries **arXiv, CrossRef, Scopus, and PubMed** simultaneously, then uses **DeepSeek AI** to analyze, rank, and explain the results. It also supports recursive citation tracking (deep search), PDF downloading via university IP authentication, and an integrated **LLM Wiki** under [`wiki/`](wiki/) for turning search results into a durable research knowledge base.
+
+## At a Glance
+
+Search Papers is built for researchers who want the whole loop in one place: discover papers, judge relevance, save PDFs, and turn notes into a linked Markdown Wiki.
+
+| Stage | What you do | What the project produces |
+|-------|-------------|---------------------------|
+| Search | `search phase-field fracture` | Ranked results from arXiv, CrossRef, Scopus, and PubMed |
+| Understand | `analyze`, `detail 3`, `detail 1 3 5` | AI summaries, reading guides, and paper comparisons |
+| Ingest | `ingest 3` | PDF saved under `wiki/raw/literature/` plus a source stub in `wiki/sources/literature/` |
+| Build Wiki | Hand the generated prompt to an LLM agent | Completed literature notes, entity pages, concept pages, backlinks, indexes, and logs |
+
+```mermaid
+flowchart LR
+    A["Research topic"] --> B["Multi-source search"]
+    B --> C["AI ranking and analysis"]
+    C --> D["ingest N"]
+    D --> E["PDF in wiki/raw/literature"]
+    D --> F["Metadata stub in wiki/sources/literature"]
+    F --> G["LLM agent follows wiki/CLAUDE.md"]
+    G --> H["Linked Wiki: sources, entities, concepts, synthesis"]
+```
 
 ### Integrated LLM Wiki
 
@@ -128,7 +152,7 @@ The AI will optimize your query, search all 4 databases, rank results, and offer
 7. ask What are the open problems?      # Free-form Q&A about the topic
 ```
 
-### Screenshots
+### CLI And Wiki Preview
 
 After searching, you get a ranked results table:
 
@@ -143,7 +167,17 @@ After searching, you get a ranked results table:
 └─────┴────────┴──────────────────────────────────────┴──────────────────────┴──────┴──────┴──────────┘
 ```
 
-AI analysis produces structured reports with paper classification and Top-5 recommendations.
+AI analysis produces structured reports with paper classification and Top-5 recommendations. After `ingest <N>`, the Wiki side gets a Markdown source page that an LLM agent can complete:
+
+```text
+wiki/
+├── raw/literature/EFM-2025.pdf
+└── sources/literature/EFM-2025.md
+    ├── YAML frontmatter: title, authors, year, journal, DOI, tags
+    ├── Abstract and PDF link
+    ├── Research goal / methods / findings placeholders
+    └── Related entities and concepts for Obsidian-style backlinks
+```
 
 ---
 
