@@ -194,7 +194,37 @@ MAX_RESULTS_PER_SOURCE=10                # 每源最大结果数
 
 - YAML frontmatter（标题、作者、年份、期刊、DOI、标签）
 - 完整摘要
-- 待填写的笔记占位区（研究目标、方法、发现、对你研究的价值）
+- 待填写的笔记占位区（研究目标、方法、发现、对当前研究主题的价值）
+
+`wiki_bridge.py` 采用两阶段设计，适合接入任何本地 Markdown/Obsidian 风格知识库：
+
+1. **桥接阶段（自动、高确定性）**：`WikiBridge.ingest_paper(paper, topic)` 负责重复检测、生成文献页文件名、下载 PDF、写入元数据桩，并在 `wiki/log.md` 追加摄入记录。它不会读取 PDF 正文，也不会生成深度解读。
+2. **知识库维护阶段（LLM agent）**：调用 `build_agent_prompt(pending, topic)` 获取待处理论文清单，让你的 LLM agent 按 `wiki/CLAUDE.md` 或自定义规范读取 PDF、补全文献笔记、维护实体/概念页、更新索引并检查双向链接。
+
+默认目录结构如下，可通过 `SEARCH_PAPERS_WIKI_DIR` 指向任意 wiki 根目录：
+
+```text
+wiki/
+├── CLAUDE.md                    # 可选：LLM agent 维护规范
+├── raw/literature/              # 原始 PDF，只读保存
+├── sources/literature/          # wiki_bridge 生成的文献元数据桩
+├── entities/                    # 领域实体页，如材料、方法、数据集、机构
+├── concepts/                    # 领域概念页，如机制、模型、任务、指标
+├── synthesis/                   # 跨文献综合分析
+├── explorations/                # 探索性问题和研究想法
+├── index.md                     # 全局索引
+└── log.md                       # 摄入和维护日志
+```
+
+推荐的 LLM agent 后处理流程：
+
+1. 读取 PDF；综述类优先读全文或前 12 页，研究类优先读前 8-10 页；PDF 缺失时基于摘要和元数据处理。
+2. 替换 source 页中的占位符，补充研究问题、方法/模型、关键发现、创新点、局限性和对当前主题的价值。
+3. 在相关实体/概念页中加入该文献的回链，保持 `related:` / `sources:` 使用 `[[page-id]]` 格式。
+4. 更新 `wiki/index.md` 的分类索引和文献计数。
+5. 在 `wiki/log.md` 记录处理日期、涉及页面和核心发现。
+
+后处理完成后建议检查：`[[link]]` 是否断链、frontmatter 中双括号是否成对、被引用页面是否有回链、同一页面名是否在多个目录重复。`raw/` 保存原始资料，默认只读；`sources/`、`entities/`、`concepts/` 等 Markdown 页面由人工或 LLM agent 维护。
 
 ---
 
