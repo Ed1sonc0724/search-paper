@@ -32,9 +32,15 @@ Thumbs.db
 
 # Project specific
 ga_images/
-wiki/
 *.pdf
 *.crdownload
+
+# Wiki knowledge base
+# Track Markdown wiki structure, but keep raw research assets out of git.
+wiki/raw/**
+!wiki/raw/
+!wiki/raw/**/
+!wiki/raw/**/.gitkeep
 
 # Jupyter
 .ipynb_checkpoints/

@@ -313,6 +313,8 @@ wiki/
 └── log.md                       # Ingest and maintenance log
 ```
 
+This repository includes the starter `wiki/` scaffold and the domain-specific LLM maintenance rules in `wiki/CLAUDE.md`. Raw PDFs and research assets under `wiki/raw/` are intentionally excluded from git; keep only reproducible Markdown knowledge pages in version control.
+
 Recommended LLM agent follow-up:
 
 1. Read the PDF; for reviews, read the full paper or first 12 pages; for research articles, read the first 8-10 pages; if no PDF is available, use the abstract and metadata.
