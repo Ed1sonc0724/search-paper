@@ -35,6 +35,10 @@ ga_images/
 *.pdf
 *.crdownload
 
+# Local source images copied into assets/ for README
+/1.png
+/2.png
+
 # Wiki knowledge base
 # Track Markdown wiki structure, but keep raw research assets out of git.
 wiki/raw/**

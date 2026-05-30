@@ -10,10 +10,11 @@
 
 <p align="center">
   <a href=#-特色功能>特色功能</a> •
-  <a href=#-一眼看懂>一眼看懂</a> •
+  <a href=#-为什么值得看>为什么值得看</a> •
+  <a href=#-检索端>检索端</a> •
+  <a href=#-沉淀端>沉淀端</a> •
   <a href=#-快速开始>快速开始</a> •
   <a href=#-使用方法>使用方法</a> •
-  <a href=#-llm-wiki-一体化>LLM Wiki</a> •
   <a href=#-配置说明>配置说明</a> •
   <a href=#-命令参考>命令参考</a> •
   <a href=#-常见问题>常见问题</a> •
@@ -22,69 +23,68 @@
 
 ---
 
+![Search Papers + Wiki 概览](assets/search-papers-wiki-cn.png)
+
 ## 这是什么？
 
-**Search Papers** 是一个终端运行的学术文献搜索工具，能同时查询 **arXiv、CrossRef、Scopus、PubMed** 四个数据库，并利用 **DeepSeek AI** 对搜索结果进行智能分析、排序和解读。支持递归引用追踪（深度搜索）、通过校园网/VPN 自动下载论文 PDF，并在 [`wiki/`](wiki/) 中内置一套 **LLM Wiki**，用于把检索结果沉淀为可长期维护的科研知识库。
+**Search Papers + Wiki** 是一个面向科研工作流的开源工具：不是只帮你“搜论文”，而是把 **检索、理解、下载、笔记、双向链接知识库** 串成一条完整链路。
 
-## 一眼看懂
+它由两部分组成：
 
-Search Papers 面向想把“搜论文、读论文、存 PDF、做笔记、建知识图谱”放进同一条链路的研究者。
+- **Search Papers（检索端）**：终端交互式学术文献检索 CLI。输入中英文研究主题后，DeepSeek 自动改写为精准英文学术检索词，并行查询 arXiv、CrossRef、Scopus、PubMed，补全引用信息，打分排序，生成 AI Markdown 报告。
+- **Wiki Bridge + Wiki（沉淀端）**：把选中的论文下载为 PDF，生成元数据桩，交给 LLM agent 深度阅读，并沉淀为 Obsidian 兼容的 Markdown 知识图谱。
 
-| 阶段 | 你执行什么 | 项目产出什么 |
-|------|------------|--------------|
-| 检索 | `search 相场断裂` | 来自 arXiv、CrossRef、Scopus、PubMed 的排序结果 |
-| 理解 | `analyze`、`detail 3`、`detail 1 3 5` | AI 综述、单篇阅读指南、多篇对比 |
-| 摄入 | `ingest 3` | PDF 保存到 `wiki/raw/literature/`，文献元数据桩写入 `wiki/sources/literature/` |
-| 构建 Wiki | 把生成的 prompt 交给 LLM agent | 完整文献笔记、实体页、概念页、双向链接、索引和日志 |
+一句话：**从论文发现，到可生长的学术知识图谱。**
 
-```mermaid
-flowchart LR
-    A["研究主题"] --> B["多源并行检索"]
-    B --> C["AI 排序与分析"]
-    C --> D["ingest N"]
-    D --> E["PDF 存入 wiki/raw/literature"]
-    D --> F["元数据桩写入 wiki/sources/literature"]
-    F --> G["LLM agent 遵循 wiki/CLAUDE.md"]
-    G --> H["双向链接 Wiki：文献、实体、概念、综合分析"]
-```
+## 为什么值得看
 
-### LLM Wiki 一体化
+| 常见痛点 | Search Papers + Wiki 的做法 |
+|----------|-----------------------------|
+| 数据库分散，检索来回切换 | 四个学术 API 并行检索，每个源独立超时容错 |
+| 关键词不准，搜出来一堆噪声 | DeepSeek 将中英文主题改写为精准英文学术检索词 |
+| 论文太多，不知道先读哪篇 | 相关性、引用数、时效性、来源质量四维加权，输出 1-5 星推荐 |
+| PDF、摘要、笔记散落各处 | `ingest <N>` 自动写入 `wiki/raw/` 和 `wiki/sources/literature/` |
+| AI 总结读完就没了 | LLM agent 按 `wiki/CLAUDE.md` 把结果沉淀为可长期维护的知识库 |
+| 知识点之间没有连接 | 实体、概念、文献、综合分析、探索问题形成 Obsidian 双向链接网络 |
 
-本仓库已经包含 [`wiki/`](wiki/) 骨架，面向固态电池多物理场耦合研究场景。检索工具和 Wiki 是一条完整链路：
+## 检索端
 
-1. 在 CLI 中检索、排序、分析论文。
-2. 执行 `ingest <N>` 下载 PDF，并在 `wiki/sources/literature/` 生成文献元数据桩。
-3. 将 `wiki_bridge.py` 生成的 prompt 交给 LLM agent。
-4. Agent 按 [`wiki/CLAUDE.md`](wiki/CLAUDE.md) 规范补全文献页、实体页、概念页、双向链接、索引和日志。
+Search Papers 负责把“研究主题”变成“可读、可排、可下载、可追踪”的论文列表：
 
-`wiki/raw/` 用于保存原始 PDF 和科研资产，默认不纳入 git；Markdown 知识页面会随代码一起版本化，形成一体化的检索与知识积累系统。
+- **AI 检索词优化**：DeepSeek 将中英文主题改写为逗号分隔的英文学术检索词，多词短语自动加引号。
+- **多源并行查询**：`asyncio.gather` 同时请求 arXiv、CrossRef、Scopus、PubMed；单个源失败不会拖垮整次搜索。
+- **去重与补全**：汇总结果后去重，并通过 Semantic Scholar 补全缺失引用数和作者信息。
+- **四维打分排序**：相关性 50% + 引用数 25% + 时效性 15% + 来源质量 10%，按百分位映射为 1-5 星推荐。
+- **结构化 AI 报告**：自动生成领域综述、Top 5 推荐、子方向分类、研究趋势和进一步建议。
+- **单篇/多篇 detail**：单篇生成基础解读 + 专属阅读指南；多篇触发交叉对比，输出共同主线、互补关系、矛盾差异和阅读顺序。
+- **引用链深搜**：`depth >= 2` 从 DOI 出发递归追踪参考文献，最多深入 5 层。
+- **三阶段 PDF 下载**：直链/arXiv、DOI 到出版商 HTML 解析、Unpaywall OA，必要时用 Selenium + Firefox 兜底。
 
-### 解决什么问题？
+## 沉淀端
 
-| 痛点 | Search Papers 方案 |
-|------|-------------------|
-| 多个数据库分散查询 | 4 个数据源并行搜索 |
-| 关键词总搜不准 | AI 自动优化为学术检索词 |
-| 论文太多不知先看哪篇 | 1-5 星推荐指数 + 相关性打分 |
-| 读论文太慢抓不住重点 | AI 生成专属阅读指南 |
-| 付费论文下不到 PDF | 通过校园网 IP/VPN 自动下载 |
-| 想追踪引用链太麻烦 | 深度搜索递归追踪引用文献 |
-| 搜完之后笔记分散 | 内置 LLM Wiki，把摄入论文变成双向链接的 Markdown 知识库 |
+Wiki Bridge + Wiki 负责把“检索结果”变成“可持续生长的科研知识网络”：
 
----
+- `ingest <N>` 先做三重重复检测：DOI 精确匹配、标题精确匹配、标题模糊匹配 `SequenceMatcher >= 85%`。
+- 文件名按 `{期刊缩写}-{年份}.md` 生成，冲突时自动追加后缀。
+- PDF 下载成功后写入 `wiki/raw/literature/`；架构铁律是 `raw/` 只读，`wiki/` 由 LLM 维护。
+- 元数据桩写入 `wiki/sources/literature/`，包含 YAML frontmatter、PDF 链接、文献信息表、摘要和待填写的研究目标/方法/发现/价值等区域。
+- `build_agent_prompt()` 会把待处理论文和 `wiki/CLAUDE.md` 的 5 步流程拼成 prompt，交给 LLM agent 逐篇处理。
+- LLM agent 读取 PDF 后补充公式、表格、关键数据，更新实体/概念页面的 `sources:` 或 `related:` 回链。
+- Post-Ingest 自检包括断链、括号配对、双向链接闭合、frontmatter 格式和跨目录重名检查。
+- Wiki 采用五层结构：**Entities / Concepts / Sources / Synthesis / Explorations**，可直接在 Obsidian 图谱视图中查看知识节点关系。
+
+这个结构的目标很明确：让 Wiki 最终能回答“某材料在某种结构中的耦合机制是什么”这类跨实体、跨概念、跨文献的问题。
 
 ## 特色功能
 
-- **多源并行搜索** — arXiv、CrossRef、Scopus、PubMed 同时查询
-- **AI 查询优化** — DeepSeek 将你的主题转化为精准英文学术检索词
-- **智能推荐排序** — 综合相关性(50%)、引用数(25%)、时效性(15%)、来源质量(10%) 的四维评分
-- **AI 分析报告** — 结构化综述：论文分类、研究趋势、Top-5 推荐
-- **单篇深度解读** — AI 生成专属阅读指南（研究空白、方法、发现、局限性）
-- **多篇对比分析** — 最多 5 篇论文交叉对比，找共同主线与互补关系
-- **引用深度搜索** — 递归追踪引用链，最多 5 层
-- **PDF 自动下载** — 三阶段策略：arXiv 直链 → DOI/HTML 解析(校园网) → Unpaywall OA → Selenium 兜底
-- **精美终端界面** — Rich 驱动的表格、面板、Markdown 渲染
-- **LLM Wiki 一体化** — 内置 `wiki/` 骨架，包含文献页、实体页、概念页、综合分析页和 LLM 维护规范
+| 模块 | 亮点 |
+|------|------|
+| 检索 | arXiv、CrossRef、Scopus、PubMed 并行搜索，支持引用链深搜 |
+| AI 分析 | 查询优化、领域报告、Top 5 推荐、单篇阅读指南、多篇交叉对比 |
+| 排序 | 相关性/引用数/时效性/来源质量四维加权，输出 1-5 星推荐 |
+| PDF | 直链、DOI HTML 解析、出版商专项处理、Unpaywall、Selenium 兜底 |
+| Wiki | 元数据桩、LLM prompt、双向链接、Obsidian-ready Markdown 知识图谱 |
+| 终端体验 | Rich 表格、面板、Markdown 渲染、交互式命令工作流 |
 
 ---
 
